@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SCL-Star-main">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/scl-star.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
