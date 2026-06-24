@@ -22,7 +22,7 @@ public class ProductMealy{
         wrongSyncs = new ArrayList<>();
     }
 
-    public ProductMealy mergeFSMs(CompactMealy<String, Word<String>> mealy_2, int componentsCount){
+    public ProductMealy mergeFSMs(CompactMealy<String, Word<String>> mealy_2, int componentsCount, int maxStates){
         // TODO Auto-generated method stub
 
         CompactMealy<String, Word<String>> mealy_1 = fsm;
@@ -54,7 +54,7 @@ public class ProductMealy{
             mealy.addState();
 //            if(componentsCount < 8 && mealy.getStates().size() > 16000)
 //                break;
-            if(mealy.getStates().size() > 30000)
+            if(mealy.getStates().size() > maxStates)
                 break;
 //			System.out.println("\ncurrent state: " + current_state);
             int s_1 = states_map[current_state][1];

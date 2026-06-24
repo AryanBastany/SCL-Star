@@ -212,7 +212,7 @@ public class FsmLearner {
                         }
                         if (productMealy == null) {
                             productMealy = new ProductMealy(currentTarget);
-                        } else productMealy.mergeFSMs(currentTarget, componentsCount);
+                        } else productMealy.mergeFSMs(currentTarget, componentsCount, maxNumOfStates);
                         size = productMealy.getMachine().getStates().size();
                         if(size > maxNumOfStates)
                             break;

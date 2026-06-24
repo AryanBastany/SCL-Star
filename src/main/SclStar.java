@@ -102,7 +102,7 @@ public class SclStar {
             if (productMealy== null){
                 productMealy = new ProductMealy(partialH);
             }
-            else productMealy.mergeFSMs(partialH, 1);
+            else productMealy.mergeFSMs(partialH, 1, 30000);
         }
 
         assert productMealy != null;
@@ -344,7 +344,7 @@ public class SclStar {
                     learnedParts.add(partialH);
                     if (productMealy == null) {
                         productMealy = new ProductMealy(partialH);
-                    } else productMealy.mergeFSMs(partialH, 1);
+                    } else productMealy.mergeFSMs(partialH, 1, 30000);
                 }
 
                 hypothesis = productMealy.getMachine();
@@ -523,7 +523,7 @@ public class SclStar {
             learnedParts.add(partialH);
             if (productMealy == null) {
                 productMealy = new ProductMealy(partialH);
-            } else productMealy.mergeFSMs(partialH, 1);
+            } else productMealy.mergeFSMs(partialH, 1, 30000);
         }
 
         return productMealy;

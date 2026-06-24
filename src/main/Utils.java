@@ -519,7 +519,7 @@ public class Utils {
                 throw (new IOException("File format not supported"));
 
             if (productMealy == null) productMealy = new ProductMealy(component);
-            else productMealy.mergeFSMs(component, 1);
+            else productMealy.mergeFSMs(component, 1, 30000);
             comp_num++;
         }
         productMealy.setComponents_count(comp_num);
