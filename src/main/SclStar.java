@@ -461,7 +461,7 @@ public class SclStar {
 
     private List<Alphabet<String>> learnSynSets(List<Alphabet<String>> iD) {
         List<Alphabet<String>> iDSecond = new ArrayList<>();
-        ProductMealy productMealy = learnSyncInParts();
+        ProductMealy productMealy = learnSyncInParts(iD);
         List<String> wrongSynchs = productMealy.getWrongSyncs();
 
         if(!wrongSynchs.isEmpty()) {
@@ -485,10 +485,10 @@ public class SclStar {
         return iDSecond;
     }
 
-    private ProductMealy learnSyncInParts() {
+    private ProductMealy learnSyncInParts(List<Alphabet<String>> family) {
         ProductMealy productMealy = null;
         List<CompactMealy<String, Word<String>>> learnedParts = new ArrayList<>();
-        for (Alphabet<String> sigmai : sigmaFamily) {
+        for (Alphabet<String> sigmai : family) {
 //            pre_eq_sym = Long.parseLong(Utils.ExtractValue(eq_sym_counter.getStatisticalData().getSummary()));
             ExtensibleLStarMealyBuilder<String, Word<String>> builder = new ExtensibleLStarMealyBuilder<String, Word<String>>();
             builder.setAlphabet(sigmai);

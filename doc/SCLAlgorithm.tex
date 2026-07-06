@@ -1,0 +1,295 @@
+\section{ESCL$^*$ Algorithm}\label{sec:SCLAlg}
+	In this section, we introduce the ESCL$^*$ algorithm as an extension of SCL$^*$\cite{samadi}. The  ESCL$^*$  algorithm compositionally learns an unknown system $M = \parallel_{i=1}^n M_i$, which consists of $n$ parallel synchronous components. 
+	This approach identifies input alphabets and synchronizing actions on-the-fly.  It is initially assumed that each component has an input alphabet 
+	and 
+	the set of synchronizing actions  $\it sync$ is equal to the union of the input alphabets of all components. Unlike the original SCL$^*$ algorithm,  ESCL$^*$ allows synchronizing actions to have different outputs across the system. However, these outputs must be identical at the point of communication. This assumption avoids
+	output non-determinism: the synchronous parallel composition of two deterministic Mealy machines remains deterministic.
+	
+
+Let $I^F = \{I_1,\dots, I_n\}$  denote a cover of the total system’s input alphabet where each $I_i\in I^F$ corresponds to a component $i$. If two sets 
+$I_i$ and $I_j$ 
+ have a non-empty intersection, the corresponding components synchronize on the shared actions. Our goal is to construct such a cover $I^F$.
+
+
+The algorithm begins with an initial cover consisting of singleton sets, each containing a single action. Suppose the teacher returns a counter-example 
+$u_1\ldots u_m$
+ in response to an equivalence query. By analysing this counter-example, %it is initially assumed that all actions within the counter-example belong to a single input set. 
+ the algorithm assumes all actions within the counter-example belong to a single input set, denoted as $I_{\mathit{CE}}$.
+ The algorithm then identifies existing sets in $I^F$ that intersect with $I_{\mathit{CE}}$ to classify shared actions as potential synchronizations.
+If an action is correctly identified as a synchronization action, the synchronous composition of the corresponding components must be valid.
+An invalid composition indicates that the synchronizing actions were misidentified. This occurs specifically when a synchronizing action has multiple distinct outputs at a synchronization point.
+In such cases, the algorithm merges the input sets containing those actions and $I^F$ is updated.
+ After updating 
+$I^F$, the algorithm relearns the system using  projected alphabet for each 
+$I_k\in I^F$. This iterative refinement of the synchronous parallel composition continues until the composed system is equivalent to the original and no further counter-examples are returned.
+
+%We will prove (Proposition~\ref{pro:noallsync}) that \rv{the counter-example $u_1\ldots u_m$ consists of at least one non-synchronizing action} %it is not possible that both actions $u_\ell$ and $u_r$ be the synchronizing actions 
+%as the Mealy machine is deterministic and the outputs of synchronizing actions are also unique. 
+%Therefore, a sequence of synchronizing actions in the SUL and the learned model will always generate the same sequence of outputs.
+
+ %In the following, we first explain the proposed algorithm by an example and then explain the algorithm in detail.
+% If the teacher returns a counter-example, we update $I^F$ and  $\it sync$ as explained.
+
+%\begin{figure}[htb]
+%		\centering
+
+ % \subfloat[\label{a}]{\scalebox{0.5}{\includegraphics{example 2.tex}}} 
+  %\qquad
+  %\subfloat[\label{b}]{\scalebox{0.65}{\includegraphics{ProjectionExample2.tex}}} 
+  %\qquad
+  %\subfloat[\label{b}]{\scalebox{0.65}{\includegraphics{project2example2.tex}}} 
+  
+  %\caption{(a) Initial system model $M$ with the input alphabet $\Sigma=\{a,b,c\}$, (b) The projection of $M$ on $\Sigma$ and learn each component individually, (c)  Use the counter-example $ab$ to merge two components}
+	%	\label{fig:motivatedexam2}
+	%\end{figure}
+
+
+
+%	\begin{example}
+		%Consider a system model in \figurename{~\ref{fig:motivatedexam2}}(a) whose alphabet is $\{a,b,c\}$. Initially, assume that $a$ is the synchronizing action, i.e., ${\it sync}=\{a\}$, and
+  %$I^F=\{\{a\},\{b\},\{c\}\}$. The %teacher may return a counter-example ${\it CE}=ab$ as this string generates the output $11$ in (a) but the output sequence in (b) is $10$. Here, the singelton sets $\{a\}$ and $\{b\}$ are dependent on each other and also $\{a\}\subseteq {\it sync}$. Hence, we merge these singleton sets and update $I^F$ which results in $I^F=\{\{a,b\},\{c\}\}$. As the learning process continues,  the teacher may return a counter-example ${\it CE}=ac$ which generates the output $11$ in (a) but the output sequence is $10$ in (c). Here, the input sets $\{a,b\}$ and $\{c\}$ depend on each other regarding the synchronizing action $a$. However, we do not merge $\{a,b\}$ with $\{c\}$ as they may belong to two distinct components synchronizing on $a$. Instead, we merge  $\{a\}\subseteq {\it sync}$ with $\{c\}\in I^F$
+	%	which results in $I^F=\{\{a,c\},\{a,b\}\}$. Now, if the teacher returns another counter-example ${\it CE}=cb$, we find that $\{a,b\},\{b,c\}$  must be merged as they depend on each other regarding the non-synchronizing  actions $b$ and $c$. In this case, we update the input sets, i.e., $I^F=\{\{a,b,c\}\}$, which denotes one component with the alphabet $\{a,b,c\}$.
+	%\end{example}
+In the following, we provide a detailed description of the ESCL$^*$ algorithm for learning systems composed of synchronous components. In this approach, each component is modelled as a simple Mealy machine. To begin, we first present the formal definitions required for the algorithm's description.
+
+
+	\begin{definition}[LearnSyncInParts]\label{def:learnparts}
+	The \textit{LearnSyncInParts} function takes a Mealy machine $M = (S, s_0, I,O, \delta, \lambda)$ and an input alphabet
+	cover $I^F =\{I_1,\dots, I_n\}$, and returns the synchronous parallel composition of learned components.
+	% where the synchronous set is defined as ${\it sync}=\bigcup_{ i,j\, |I_i|>1,|I_j|>1,i\neq j} I_i\cap I_j$.
+	\[{\it LearnSyncInParts}(M,I^F)=L^*(M,I_1)\parallel\dots\parallel L^*(M,I_n)\]
+	%where ${\it sync}=\bigcup_{\forall I_i,I_j\in I^F} I_i\cap I_j$
+\end{definition}
+
+
+%\begin{definition}[SyncActions]\label{def:syncalphabet}
+%	The  $\it SyncActions$ function gets a counter-example CE  and a synchronous  set $\it sync$, and returns a set of singleton sets including synchronous actions that are involved in CE:
+%	\[{\it SyncActions}({\it CE},{\it sync} )=\{I_j\mid I_j\subseteq {\it sync}, |I_j|=1, ,\exists i\cdot{\it CE}[i]\in I_j\}\]  
+%	where $|I_j|$ denotes the size of $I_j$ and the $i^{th}$  action of CE is denoted by ${\it CE}[i]$.
+%\end{definition}
+%
+%\begin{example}
+%	If ${\it sync}=\{b,d\}$, and ${\it CE}=bc$, then ${\it SyncActions}({\it CE},{\it sync})=\{\{b\}\}$.
+%\end{example}
+
+\begin{definition}[SymbolsSet] \label{def:symbolset}
+	The function  $\it SymbolsSet$  takes a counter-example CE and returns a set containing  all symbols present  in CE:
+	
+	
+    	\[{\it SymbolsSet}({\it CE})=\{
+	\bigcup_{i=1}^{|{\it CE}|}{{\it CE}[i]}\} \]
+  %\rv{, where ${\it CE}[i]$ refers to the $i^{th}$ symbol of CE.}
+  , where $|{\it CE}|$ denotes the length of the counter-example.
+\end{definition}
+
+\begin{example*}
+		If ${\it CE}=abc$, then  ${\it SymbolsSet}({\it CE})=\{a,b,c\}$.
+	\end{example*}
+\begin{definition}[DependentSets] \label{def:dependset}
+	The function  $\it DependentSets$  takes an input cover
+	$I^F$, and a set of actions $\it s$, and returns the input sets from $I^F$ that contain at least one  action of the set $s$:	
+	\[{\it DependentSets}(I^F,s)=
+	\{I_j\mid I_j\in I^F,\exists a\in s\wedge a\in I_j \}\]
+ 
+ %\rv{, where ${\it CE}[i]$ refers to the $i^{th}$ symbol of CE.}
+\end{definition}
+
+%	\begin{definition}[InvolvedSets(\textbf{Another!})]
+	%	\[{\it InvolvedSets}({\it CE},I^F,{\it sync}^F)=\]
+	%	\[\{I_j\mid I_j\in {\it sync}^F ,\exists i\cdot{\it CE}[i]\in I_j\}\,\cup\]  
+	%	\[\{I_j\mid I_j\in I^F,\exists i\cdot{\it CE}[i]\not\in {\it sync}\wedge {\it CE}[i]\in I_j \}\]
+	%	where the $i^{th}$  character of CE is denoted by ${\it CE}[i]$, and if ${\it sync}=\{s_1,\ldots,s_n\}$ then ${\it sync}^F=\{\{s_1\},\ldots,\{s_n\}\}$.
+	%\end{definition}
+	
+	\begin{example*}
+		If $I^F=\{\{a,b\},\{c,d\},\{e,f\}\}$,  $s=\{b,d\}$, then  ${\it DependentSets}(I^F,s)=\{\{a,b\},\{c,d\}\}$.
+	\end{example*}
+	\begin{definition}[Merge] 	The function ${\it Merge}$	takes two covers $I^{F}_1$ and $I^{F}_2$, and updates $I^{F}_1$ according to the sets in $I^{F}_2$. To this end, it removes the sets of $I^{F}_2$ from $I^{F}_1$ and adds their union to $I^{F}_1$:
+		  ${\it Merge}(I^{F}_1,I^{F}_2)= 
+		(I^{F}_1\setminus\  I^{F}_2)\cup\{\bigcup_{I_j\in I^{F}_2} I_j\}$
+	\end{definition}
+	\begin{example*}
+		If $I^{F}_1=\{\{a\},\{b\},\{c,d\}\}$, $I^{F}_2=\{\{b\},\{c,d\}\}$ then ${\it Merge}(I^{F}_1,I^{F}_2)=\{\{a\},\{b,c,d\}\}$
+	\end{example*}
+	
+%	\begin{definition}[UnionSyncSets] The $\it UnionSyncSets$ function gets a  cover $I^F = \{I_1, \dots , I_n\}$ and a synchronous alphabet `$m$', and returns the union of the input sets that have a common alphabet as `$m$'.
+%		\[{\it UnionSyncSets}(I^F,m)=
+%		\{\bigcup_{i:1\dots j} I_i\mid I_i\in I^F,\exists\, j>1\cdot \bigcap_{i:1\dots j} I_i=\{m\}\}
+%		\]
+%	\end{definition}
+%	
+%	\begin{example}
+%		If $I^F=\{\{a,b\},\{c,b\},\{b\}\}$, then ${\it UnionSyncSets}(I^F,b)=\{a,b,c\}$
+%	\end{example}
+%
+
+
+	\begin{algorithm}[tb]
+		\small
+		\caption{Extended Synchronous Compositional Learning Algorithm}
+		\label{alg:SCLalg}
+		\hspace*{\algorithmicindent}
+		\textbf{Input:} $I^F=\{I_1,\dots,I_n\},M$\\
+		\hspace*{\algorithmicindent}
+		\textbf{Result:}  $\mathscr{H}$
+		\begin{algorithmic}[1]
+		\State ${\it sync}:=\bigcup_ {i:1\dots n} I_i \, {\it where}\, I_i\in I^F$ \label{alg:sync}
+  		\State $\mathscr{H}\leftarrow {\it LearnSyncInParts}(M,I^F)$\label{alg:Lerarnsync}
+			\State ${\it CE}\leftarrow {\it EquivalenceQuery} (\mathscr{H},M)$\label{alg:CEequi}
+			\While{${\it CE}\neq {\it yes}$}\label{alg:while}
+			\State ${\it ProcessCE}({\it CE})$\label{alg:processCE}
+			\State $\mathscr{H}\leftarrow {\it LearnSyncInParts}(M,I^F)$\label{alg:secondLearn}
+			\State ${\it CE}\leftarrow {\it EquivalenceQuery}(\mathscr{H},M)$\label{alg:CEequisecond}
+			\EndWhile
+   \State ${\it sync}:={\it sync}\setminus\{u\mid \nexists\, I_i,I_j\in I^F\cdot u\in I_i \wedge u\in I_j\}$\label{alg:updatesyncsecnd}
+			\State ${\it return}\,\mathscr{H}$   \label{alg:return}
+		\end{algorithmic}
+	\end{algorithm}
+
+
+	Algorithm \ref{alg:SCLalg} shows the pseudo-code of learning a system compositionally including components that synchronized on some actions. The algorithm
+begins with an initial cover $I^F$ consisting of singleton sets for each action in the alphabet $I = \{u_1, u_2, \dots, u_n\}$, such that $I^F = \{\{u_1\}, \{u_2\},\dots, \{u_n\}\}$.
+The set of synchronizing actions, $\textit{sync}$, is initially defined as the union of all input alphabets in $I^F$ (line \ref{alg:sync}).
+The \textit{LearnSyncInParts} method, then learns each component using the $L^*$ algorithm and returns their synchronous parallel composition (line \ref{alg:Lerarnsync}).
+Regarding the learned components, the hypothetical synchronizing actions, \textit{sync} is updated. 
+The teacher is asked whether the hypothesis $\mathscr{H}$ is equivalent to $M$ (line \ref{alg:CEequi}).
+	If the teacher returns ``yes'' for this equivalence query,
+ the algorithm terminates and returns $\mathscr{H}$.
+ Otherwise, the counter-example is processed via the \textit{ProcessCE} procedure (line \ref{alg:processCE}) detailed in Algorithm \ref{alg:processCEAlg}, and an(other) iteration of the loop is performed until a correct hypothesis $\mathscr{H}$ is successfully learned (lines \ref{alg:processCE}--\ref{alg:CEequisecond}).
+   The $\it sync$ set is refined by removing any actions that are no longer shared among the sets in $I^F$ (line \ref{alg:updatesyncsecnd}).
+
+\begin{algorithm}[tb]
+		\small
+		\caption{Process Counter-Example}
+		\label{alg:processCEAlg}
+  \hspace*{\algorithmicindent}
+		\textbf{Input:}  ${\it CE}$\\
+		\hspace*{\algorithmicindent}
+		\textbf{Effect:} Updating the global input cover $I^F$
+		\begin{algorithmic}[1]
+			\Procedure {$\it ProcessCE$}{}
+			\State $I^D\leftarrow \emptyset$
+            \State $I_{\it CE}\leftarrow {\it SymbolsSet}({\it CE})$ \label{algline:symbolsset}
+            \If {$\exists \, I_i\in I^F\cdot I_i\subseteq I_{\it CE}$} {$I^F\leftarrow I^F\setminus I_i$} \label{algline:updateIF}
+            \EndIf
+            \State $I^F\leftarrow I^F\cup I_{\it CE}$ \label{algline:addICE}
+            \ForEach{$I_j\neq I_{\it CE}\in I^F\cdot I_{\it CE}\cap I_j\neq \emptyset$}~~~~~
+            {$I^D\leftarrow I^D\cup \{I_j\}$} \label{algline:generetaeID}
+            \EndFor
+            \If {$I^D\neq \emptyset$} {$I^D\leftarrow {\it CheckSynSets}(I^D\cup \{I_{\it CE}\})$} \label{algline:learnsynset}   
+            \EndIf
+            \ForEach{$I_i\in I^D$}~~~ {$I^F\leftarrow {\it Merge}(I^F,I_i)$}\label{algline:merge}
+            %\If {$I^D\neq \emptyset$} 
+            %\State $I^{D'}\leftarrow{\it IntersectSets}(I^D)$            
+             %\State {$I^F\leftarrow {\it Merge}(I^F,\{I_i,I_j\})$}\label{algline:merge}
+            \EndFor                     
+            \label{alg:secondLearn}
+			\EndProcedure
+			
+		\end{algorithmic}
+	\end{algorithm}
+
+ 
+ 		Algorithm \ref{alg:processCEAlg} \rv{is a procedure that} updates the \rv{global variable} %cover 
+   $I^F$ using a counter-example CE.
+The function \textit{SymbolsSet} returns a set $I_{\it CE}$ containing the actions of the counter-example (line \ref{algline:symbolsset}).
+If there exists a set in $I^F$ that is subset of $I_{\it CE}$ (line \ref{algline:updateIF}), then
+the algorithm removes it and adds $I_{CE}$ to the cover $I^F$ (line \ref{algline:addICE}). The algorithm then identifies all sets in $I^F$ that share actions with $I_{CE}$ (line \ref{algline:generetaeID}). It is critical to verify whether these shared actions are valid synchronizations actions using Algorithm \ref{alg:learnsync} (line \ref{algline:learnsynset}). Algorithm \ref{alg:learnsync} identifies actions that were incorrectly classified as synchronizing.
+ According to the Proposition 1, 
+ if these shared actions do not truly belong  to the synchronizing actions set, the corresponding input sets are then merged (line \ref{algline:merge}).
+
+
+
+	Algorithm \ref{alg:learnsync} takes a set of alphabet sets containing shared actions and checks whether these  actions are true synchronizing actions. The \emph{LeanSyncInParts} method (line \ref{algline3:learnsyncinpart}), learns each component via the L* algorithm and returns their synchronous composition. If shared actions have conflicting outputs at  the synchronization points, it is concluded that they are not true synchronizing actions
+     The \emph{CheckOutput} method (line \ref{algline3:checkoutput}) inspects the synchronization points for output consistency.
+     If a synchronizing action has multiple distinct outputs, the algorithm identifies it as an incorrectly identified synchronizing action.
+   For each of such invalid shared actions,  the \emph{DependentSets} method finds the input sets containing that action (lines \ref{algline3:forwrongsync}--\ref{algline3:updateID}). Finally, the algorithm returns all input sets that share these invalid synchronizing actions (line \ref{algline3:return}). 
+     
+ 
+
+\begin{algorithm}[thb]
+		\small
+		\caption{Check Input Sets with Shared Actions}
+		\label{alg:learnsync}
+        \hspace*{\algorithmicindent}
+		\textbf{Input:}  $I^D$:   A set of input sets with shared actions  \\
+ %\textcolor{gray}{\text{~~~~//\,\,updated independent covers}}$\\
+  \hspace*{\algorithmicindent}
+%\textcolor{gray}}$%{\text{~~~~//\,\,independent covers}}$
+%		\hspace*{\algorithmicindent}
+%		\textbf{Effect:} Updating the set of $I^D$
+        \textbf{Result:}  Updated $I^D$ 
+		\begin{algorithmic}[1]
+			\Function {$\it CheckSyncSets$}{}
+			\State $I^M\leftarrow \emptyset,\, I^{D'}\leftarrow\emptyset$ 
+            \State $\mathscr{H}\leftarrow {
+            \it LearnSyncInParts} (M,I^D)$ \label{algline3:learnsyncinpart}
+            \State ${\it wrongsync}\leftarrow {\it CheckOutputs}(\mathscr{H})$ \label{algline3:checkoutput}
+            \If {${\it wrongsync}\neq \emptyset$} \label{algline3:Ifwrongsync}
+            \ForEach{$u\in {\it wrongsync}$} \label{algline3:forwrongsync}
+            \State $I^{M}\leftarrow {\it DependentSets}(I^D,{\it wrongsync})$ \label{algline3:dependentset}
+            \State $I^{D'}\leftarrow I^{D'} \cup \{I^M\}$ \label{algline3:updateID}
+            \EndFor
+            \EndIf
+            \State ${\it return}\, I^{D'}$
+            \label{algline3:return}
+            \label{alg:leransyncset}
+			\EndFunction			
+		\end{algorithmic}
+	\end{algorithm}
+ 
+
+	
+	
+	
+
+
+
+\begin{proposition}\label{pro:setmerged}
+	Let $I^F$ be an input cover, and $\it sync$ be the set of synchronizing actions. If two input sets $I_i,I_j\in I^F$ have a shared action $u$, and $u$ is identified as a non-synchronizing action  ($u \notin sync$), then %\rv{$I^F$ must be updated according to    the union of $I_i$ and $I_j$.} 
+ $I_i$ and $I_j$ must be merged.
+\end{proposition}
+
+\begin{proof}
+	
+		Assume that in Algorithm~\ref{alg:processCEAlg}, %lines \ref{alg2:If}-\ref{alg2:updateOutSync}, 
+        $I^F$ contains two input sets  $I_i=\{a_1,\ldots,a_n,u\}$ and $I_j=\{b_1,\ldots, b_m,u\}$, where $u$ is detected as a non-synchronizing action. By Definition~\ref{def:dependactions}, 
+	each input set consists of dependent actions. Hence, the actions $a_1,\ldots,a_n$ are dependent on the non-synchronizing action $u$, and $b_1,\ldots,b_m$  are likewise dependent on $u$. Since $u$ is a non-synchronizing action, the transitive property of the dependency relationship implies that $a_1,\ldots,a_n$ are also dependent on $b_1,\ldots,b_m$. %, and so,  $I_i$ and $I_j$ must be merged.
+ \rv{As a result, $I_i$ and $I_j$ are removed from $I^F$ and instead their union $\{a_1,\ldots,a_n,b_1,\ldots,b_m,u\}$ is added to $I^F$.}
+\end{proof}
+
+\subsection{Minimum Counter-Examples}
+\rv{We aim to find a counter-example with minimal length where any of its prefixes are not a counter-example.}
+If the teacher returns a non-minimal counter-example, some input sets may be merged incorrectly~\cite{30}. 
+To address this, we extend the algorithm proposed in \cite{30} to minimize the returned counter-example based on the synchronizing actions. Our approach iteratively identifies the smallest prefix of $CE$ that remains a valid counter-example.   To this end, we select the input sets  $I^M$ including synchronizing and non-synchronizing actions participating in  CE. Then, we iteratively select a subset of $I^M$, merge its members, and produce a set $A$. The projection of CE on $A$ is returned as a minimum counter-example if the SUL and the hypothesis model produce
+different outputs.% for it.
+%{\it MinimizeCE} (Algorithm~\ref{alg:CEMinimize}) we iteratively get a subset of ${\it DependentSets}({\it CE}, {I^F},{\it sync})$ and merge its actions. % which leads to producing a set $A$.
+%The algorithm returns a projection of a counter-example %, i.e., $P_{A}(\it CE)$,  as an output if it is a counter-example.
+%In Algorithm~\ref{alg:CEMinimize}, line \ref{alg3:Minprefix},  the function \emph{MinPrefixCE} takes a counter-example CE and returns the smallest prefix of CE that is also a counter-example. On lines \ref{alg3:updateI^D}-\ref{alg3:foerach1}, the input covers including synchronizing and non-synchronizing actions participating in the counter-example CE are selected. On lines \ref{alg3:foreach2}-\ref{alg3:A}, we iteratively get a subset of $I^D$, merge its members, and produce a set $A$. On lines \ref{alg3:CEmin}-\ref{alg3:If},  the new counter-example is returned as a  minimum counter-example if the SUL and the hypothesis model produce different outputs for it.
+%\begin{algorithm}[tb]
+%		\small
+%		\caption{Counter-Example Minimization}
+%		\label{alg:CEMinimize}
+%  \hspace*{\algorithmicindent}
+%  \textbf{Input:} ${\it CE},I^F=\{I_1,\dots,I_n\},M,\mathscr{H},{\it sync}$\\
+ % \textbf{Result:} ${\it CE}_{\it Min}$	
+%		\begin{algorithmic}[1]
+%			\Procedure {$\it MinimizeCE$}{}
+%			\State ${\it CE}\leftarrow {\it MinPrefixCE}({\it CE})$\label{alg3:Minprefix}
+ %           \State $I^D\leftarrow{\it DependentSet}({\it CE},I^F,{\it sync})$\label{alg3:updateI^D}
+  %          \ForEach{$s\in {\it sync}\,\textbf{s.t}\, \exists i\cdot{\it CE}[i]=s$ }   $I^D\leftarrow I^D \cup\{\{s\}\}$\label{alg3:foerach1}
+   %         \ForEach{$k\in\{2,\ldots,|I^D|\}$}\label{alg3:foreach2}
+    %        \State $I^*\leftarrow\{I_j\mid |I_j|=k\,\wedge\,\forall\,u\in I_j\rightarrow u\in I^D\}$\label{alg3:I*}
+            %I_j=\{I_1,\ldots,I_k\}\,\textbf{s.t}\, \forall\,i\in\{1,\ldots,k\}\cdot\, I_i\in I^D\}$
+     %       \ForEach{$I_\rho\in I^*$}\label{alg3:foreach3}
+      %      \State $A\leftarrow\bigcup_{v\in I_\rho} I_\rho$\label{alg3:A}
+       %     \State ${\it CE}_{\it Min}\leftarrow P_A({\it CE})$\label{alg3:CEmin}
+        %    \If{${\it CE}_{\it Min} \textit{is a counter-example}$}  ${\it return} {\it CE}_{\it Min}$\label{alg3:If}
+         %   \EndIf
+          %  \EndFor
+           % \EndFor
+            %\EndFor
+			%\EndProcedure
+		%\end{algorithmic}
+	%\end{algorithm}
+	In the next section, we prove that the ESCL$^*$ algorithm terminates and the synchronous components are learned correctly.
