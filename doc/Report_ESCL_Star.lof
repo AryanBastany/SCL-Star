@@ -1,0 +1,4 @@
+\contentsline {figure}{\numberline {1}{\ignorespaces الگوریتم پردازش ضدمثال در \lr {SCL-Star}: به‌محض مشاهده‌ی یک خروجی متفاوت برای کنش هم‌گام‌ساز $u$، کنش بدون بررسی بیشتر از \lr {sync} حذف می‌شود.}}{4}{figure.1}%
+\contentsline {figure}{\numberline {2}{\ignorespaces پیش‌نویس اولیه‌ی الگوریتم پردازش ضدمثال در \lr {ESCL-Star}: به‌جای حذف کنش، مجموعه‌های الفبایی مرتبط با آن یاد گرفته و صحت هم‌گامی آن‌ها با \lr {LearnSyncSets} بررسی می‌شود.}}{5}{figure.2}%
+\contentsline {figure}{\numberline {3}{\ignorespaces مقایسه‌ی تعداد نمادهای پرسش عضویت (چپ) و تعداد بازنشانی‌ها (راست) برای \lr {LSTAR} در برابر \lr {ESCL-Star} روی مجموعه‌ی ادغام‌شده‌ی آزمون‌های تولیدشده.}}{11}{figure.3}%
+\contentsline {figure}{\numberline {4}{\ignorespaces نمودارهای مقایسه‌ی تعداد نمادها، تعداد بازنشانی‌ها، و نمای ادغام‌شده برای \lr {ESCL-Star} روی بنچمارک واقعیِ \lr {bankCard}.}}{12}{figure.4}%
