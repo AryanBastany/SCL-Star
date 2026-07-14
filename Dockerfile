@@ -1,5 +1,4 @@
-# Use the OpenJDK 21 slim image as the base
-FROM openjdk:21-slim
+FROM eclipse-temurin:21-jdk-jammy
 
 # Install Python 3
 RUN apt-get update && apt-get install -y python3 && rm -rf /var/lib/apt/lists/*
