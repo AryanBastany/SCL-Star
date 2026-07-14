@@ -29,6 +29,39 @@ for the `scp`/`rsync` transfer steps.
 
 ---
 
+## 0.5 (Re)build `scl-star.tar` from the `Dockerfile`
+
+The `part_aa` … `part_aj` files checked into this repo are just a split copy of a
+`docker save` of the `scl-star` image. If you've changed `Dockerfile`, `scl-star.jar`,
+or anything else the image bundles, rebuild the image and regenerate those parts
+**before** following the "Copy the project" / "Path A" steps below — otherwise the
+remote server will load a stale image.
+
+Run this on your **local machine** (project root), wherever Docker is available:
+
+```bash
+cd /home/aryan/Desktop/escl/ESCL-Star
+
+# 1. Build the image from the Dockerfile
+docker build -t scl-star .
+
+# 2. Save it to a single tarball
+docker save -o scl-star.tar scl-star
+
+# 3. Remove the old split parts and re-split into fresh 50MB chunks
+rm -f part_a*
+split -b 50M -a 2 scl-star.tar part_
+
+# 4. Clean up the intermediate tarball (the split parts are what gets committed)
+rm scl-star.tar
+```
+
+This produces the same `part_aa`, `part_ab`, … naming the rest of this guide and the
+`README.md` expect. Commit the regenerated `part_a*` files so the remote server (and
+anyone else pulling the repo) gets the updated image.
+
+---
+
 ## 1. Copy the project to the remote server
 
 From your **local machine** (project root), copy the whole repo over SSH:
