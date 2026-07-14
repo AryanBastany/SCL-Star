@@ -10,6 +10,15 @@ project to it, and running `src/main/Experiment.java` there. Two paths are cover
 
 Replace `user@remote-host` with your actual SSH target throughout.
 
+> **Code changes require rebuilding both the jar and the image.** The `Dockerfile`
+> `COPY`s `scl-star.jar`, `libs/`, `Configs/`, `Results/`, and `src/test/` into the
+> image at build time, so `part_a*` is a self-contained snapshot of the current code —
+> it doesn't just rely on whatever happens to be bind-mounted at `docker run` time
+> (step A.3, which still overlays/persists `Results/` from the host, but is no longer
+> load-bearing for shipping code). So after editing `src/`: rebuild the jar (0.4),
+> **then** rebuild the image and `part_a*` (0.5) — 0.5 always needs rerunning after 0.4,
+> since that's the step that bakes the new jar into the image.
+
 ---
 
 ## 0. Connect to the server
@@ -29,13 +38,77 @@ for the `scp`/`rsync` transfer steps.
 
 ---
 
+## 0.4 (Re)build `scl-star.jar` after a code change
+
+`scl-star.jar` (project root) is a **prebuilt artifact** — it is not regenerated
+automatically from `src/`. If you changed anything under `src/main` (or any other
+source used by `main.Experiment`), you must rebuild this jar so the change actually
+ships to the remote server.
+
+**This step must run before 0.5.** The `Dockerfile` `COPY`s `scl-star.jar` into the
+image at build time, so building the image (0.5) with a stale jar produces a stale
+image — regenerating `part_a*` from an unchanged `scl-star.jar` does **not** ship your
+code change, even though the `part_a*` files themselves change (new image layer
+hashes) and look like they should. Always rebuild the jar here first, *then* do 0.5.
+
+The manifest (`src/META-INF/MANIFEST.MF`) sets `Main-Class: main.Experiment`, so the
+jar is runnable standalone; the classpath entries for `libs/*.jar` are supplied at
+`docker run` time (see A.3).
+
+### CLI way
+
+From the project root, on your local machine:
+
+```bash
+cd /home/aryan/Desktop/escl/ESCL-Star
+
+# 1. Compile all sources against the bundled dependency jars
+mkdir -p out
+javac -cp "libs/learnlib-distribution-0.16.0-dependencies-bundle.jar:libs/opencsv-5.6.jar:libs/slf4j-jdk14-1.7.36.jar:libs/commons-cli-1.4.jar:libs/aspectj-1.9.22.1.jar" \
+  -d out \
+  $(find src/main -name '*.java')
+
+# 2. Re-package into scl-star.jar, reusing the existing manifest
+jar cfm scl-star.jar src/META-INF/MANIFEST.MF -C out .
+
+# 3. Clean up the intermediate class files
+rm -rf out
+```
+
+This overwrites `scl-star.jar` in place with freshly compiled classes.
+
+### IntelliJ way
+
+1. Open the project in IntelliJ (`SCL-Star.iml`).
+2. **File → Project Structure → Artifacts → +  → JAR → From modules with dependencies…**
+3. Set **Main Class** to `main.Experiment`, keep module `SCL-Star`, and choose
+   **extract to the target JAR** (or leave dependencies out — the Dockerfile supplies
+   `libs/*.jar` on the classpath at runtime, so an artifact with just `main`/project
+   classes matches the existing `scl-star.jar` layout most closely).
+4. Set the **Output directory** to the project root and the artifact name/JAR file to
+   `scl-star.jar` (or build elsewhere and move/rename it into the project root
+   afterward, overwriting the old one).
+5. Apply, then **Build → Build Artifacts… → scl-star → Build** (use **Rebuild** if
+   you've built this artifact before, to make sure stale classes aren't reused).
+6. Confirm the new `scl-star.jar` landed in the project root, replacing the old one.
+
+Either way, verify the jar actually changed before moving on:
+
+```bash
+ls -la scl-star.jar   # check the timestamp/size updated
+```
+
+---
+
 ## 0.5 (Re)build `scl-star.tar` from the `Dockerfile`
 
 The `part_aa` … `part_aj` files checked into this repo are just a split copy of a
-`docker save` of the `scl-star` image. If you've changed `Dockerfile`, `scl-star.jar`,
-or anything else the image bundles, rebuild the image and regenerate those parts
-**before** following the "Copy the project" / "Path A" steps below — otherwise the
-remote server will load a stale image.
+`docker save` of the `scl-star` image. The `Dockerfile` `COPY`s `scl-star.jar`,
+`libs/`, `Configs/`, `Results/` (scaffolding), and `src/test/` into the image at build
+time, so the image — and therefore `part_a*` — is a full, self-contained snapshot of
+the current code. **Run this step any time you rebuild `scl-star.jar` (0.4) or change
+the `Dockerfile` itself** — otherwise the remote server loads a stale image, even
+though the underlying `scl-star.jar` on disk changed.
 
 Run this on your **local machine** (project root), wherever Docker is available:
 
