@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import java.io.IOException;  // Import the IOException class to handle errors
 import java.io.FileWriter;   // Import the FileWriter class
+import java.io.File;
 
 public class SclStar {
     private Alphabet<String> alphabet;
@@ -163,6 +164,7 @@ public class SclStar {
     //Equivalence-Query ends!
     //MainLoop starts:
         try {
+            new File("Log/Counter Example").mkdirs();
             FileWriter myWriter = new FileWriter("Log/Counter Example/Run for the " + runCounter + "st time.txt");
             int counter = 1;
             while (ce != null) {

@@ -1,0 +1,16 @@
+\contentsline {section}{\numberline {1}مقدمه}{3}{section.1}%
+\contentsline {section}{\numberline {2}مروری بر محدودیت الگوریتم پیشین}{3}{section.2}%
+\contentsline {section}{\numberline {3}الگوریتم \lr {ESCL-Star}}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}ایده‌ی اصلی}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}تعاریف پایه}{5}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}پیاده‌سازی نهایی: \lr {makeSet}، \lr {merge} و \lr {ProductMealy}}{6}{subsection.3.3}%
+\contentsline {section}{\numberline {4}تعمیم تولیدکننده‌ی آزمون‌های خودکار}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}صورت‌مسئله}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}استخراج کوچک‌ترین دوره‌ی تناوب}{7}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}ساخت اسکلتِ سازگار با الگو}{8}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}الحاق حالت‌های اضافی بدون نقض الگو}{9}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}خنثی‌سازی اثر کنش‌های خصوصی بر الگوی هم‌گامی}{10}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}تصادفی‌سازی نوع مؤلفه‌ها در آزمون‌های نقطه‌به‌نقطه}{10}{subsection.4.6}%
+\contentsline {section}{\numberline {5}آزمایش‌ها و نتایج بر روی آزمون‌های تولیدشده}{10}{section.5}%
+\contentsline {section}{\numberline {6}بنچمارک واقعی: \lr {bankCard}}{11}{section.6}%
+\contentsline {section}{\numberline {7}جمع‌بندی}{12}{section.7}%
