@@ -1,4 +1,4 @@
-\contentsline {algorithm}{\numberline {3.1}{\ignorespaces پردازش ضدمثال در \lr {ESCL-Star} (خلاصه‌ی پیاده‌سازی \lr {ProcessCE})}}{6}{algorithm.3.1}%
-\contentsline {algorithm}{\numberline {4.1}{\ignorespaces \lr {getMinimalPattern}: کاهشِ یک الگو به کوچک‌ترین دوره‌ی تناوب}}{8}{algorithm.4.1}%
-\contentsline {algorithm}{\numberline {4.2}{\ignorespaces ساخت اسکلتِ گراف بر مبنای الگوی خروجی هم‌گام‌ساز}}{8}{algorithm.4.2}%
-\contentsline {algorithm}{\numberline {4.3}{\ignorespaces الحاق حالت‌های اضافی به اسکلتِ سازگار با الگو}}{9}{algorithm.4.3}%
+\contentsline {algorithm}{\numberline {3.1}{\ignorespaces \lr {Processing a counter-example in ESCL-Star (summary of the \texttt {ProcessCE} implementation)}}}{6}{algorithm.3.1}%
+\contentsline {algorithm}{\numberline {4.1}{\ignorespaces \lr {getMinimalPattern: reducing a pattern to its minimal period}}}{8}{algorithm.4.1}%
+\contentsline {algorithm}{\numberline {4.2}{\ignorespaces \lr {Constructing the skeleton graph from the synchronizing-action output pattern}}}{8}{algorithm.4.2}%
+\contentsline {algorithm}{\numberline {4.3}{\ignorespaces \lr {Appending extra states to the pattern-consistent skeleton}}}{9}{algorithm.4.3}%

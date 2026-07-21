@@ -404,55 +404,62 @@ public class SclStar {
     }
 
     private void merge(List<Alphabet<String>> iD) {
-        HashMap<String, List<Integer>> toMerge = new HashMap<>();
-
-        for (int alphaIndex = 0; alphaIndex < iD.size(); alphaIndex++) {
-            for (String currAct : iD.get(alphaIndex)) {
-                if(!toMerge.containsKey(currAct))
-                    toMerge.put(currAct, new ArrayList<>());
-                if(!toMerge.get(currAct).contains(alphaIndex))
-                    toMerge.get(currAct).add(alphaIndex);
-            }
+        int n = iD.size();
+        int[] parent = new int[n];
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
         }
 
-        List<String> toRemove = new ArrayList<>();
-        for(String currAct : toMerge.keySet()) {
-            for(String comparingAct : toMerge.keySet()) {
-                if(!currAct.equals(comparingAct)) {
-                    if(new HashSet<>(toMerge.get(comparingAct)).containsAll(toMerge.get(currAct))) {
-                        toRemove.add(currAct);
-                        break;
-                    }
+        HashMap<String, Integer> firstIndexForAction = new HashMap<>();
+        for (int alphaIndex = 0; alphaIndex < n; alphaIndex++) {
+            for (String currAct : iD.get(alphaIndex)) {
+                Integer other = firstIndexForAction.get(currAct);
+                if (other == null) {
+                    firstIndexForAction.put(currAct, alphaIndex);
+                } else {
+                    union(parent, other, alphaIndex);
                 }
             }
         }
 
-        for(String currRemoving : toRemove){
-            toMerge.remove(currRemoving);
+        HashMap<Integer, List<Integer>> components = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            int root = find(parent, i);
+            components.computeIfAbsent(root, k -> new ArrayList<>()).add(i);
         }
 
-        HashSet<Integer> setsToRemove = new HashSet<>();
-        for(List<Integer> currList : toMerge.values()) {
-            setsToRemove.addAll(currList);
+        for (int i = 0; i < n; i++) {
+            sigmaFamily.remove(iD.get(i));
         }
 
-        for(int currRemoving : setsToRemove) {
-            sigmaFamily.remove(iD.get(currRemoving));
-        }
-
-        List<Alphabet<String>> toAdd = getAlphabets(iD, toMerge);
+        List<Alphabet<String>> toAdd = getAlphabets(iD, components);
         sigmaFamily.addAll(toAdd);
     }
 
-    private List<Alphabet<String>> getAlphabets(List<Alphabet<String>> iD, HashMap<String, List<Integer>> toMerge) {
+    private int find(int[] parent, int i) {
+        while (parent[i] != i) {
+            parent[i] = parent[parent[i]];
+            i = parent[i];
+        }
+        return i;
+    }
+
+    private void union(int[] parent, int i, int j) {
+        int rootI = find(parent, i);
+        int rootJ = find(parent, j);
+        if (rootI != rootJ) {
+            parent[rootI] = rootJ;
+        }
+    }
+
+    private List<Alphabet<String>> getAlphabets(List<Alphabet<String>> iD, HashMap<Integer, List<Integer>> components) {
         List<Alphabet<String>> toAdd = new ArrayList<>();
-        for(List<Integer> currList : toMerge.values()) {
-            List<String> toAddAlpha = new ArrayList<>(iD.get(currList.getFirst()));
-//            Alphabet<String> toAddAlpha = Alphabets.fromList(new ArrayList<>(iD.get(currList.getFirst())));
-            for(int i : currList) {
+        for (List<Integer> currList : components.values()) {
+            List<String> toAddAlpha = new ArrayList<>(iD.get(currList.get(0)));
+            for (int i : currList) {
                 Alphabet<String> toMergeAlpha = iD.get(i);
-                for(String currAct : toMergeAlpha) {
-                    if(!toAddAlpha.contains(currAct))
+                for (String currAct : toMergeAlpha) {
+                    if (!toAddAlpha.contains(currAct))
                         toAddAlpha.add(currAct);
                 }
             }
