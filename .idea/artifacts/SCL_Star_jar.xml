@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SCL-Star:jar">
+    <output-path>$PROJECT_DIR$</output-path>
+    <root id="archive" name="SCL-Star.jar">
+      <element id="module-output" name="SCL-Star" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/slf4j-jdk14-1.7.36.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/commons-cli-1.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/learnlib-distribution-0.16.0-dependencies-bundle.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/opencsv-5.6.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
