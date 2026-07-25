@@ -1,5 +1,6 @@
 /target/
 /out/*
+/venv/*
 /bin/
 /Log/*
 /src/test/Generated Tests/data/*
